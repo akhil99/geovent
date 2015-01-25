@@ -53,10 +53,13 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
 
     LatLng lastPos;
 
+
     ArrayList<Event> events;
     Event buildEvent;
 
     public static class Event{
+
+        LatLngBounds.Builder bounds;
 
         LatLng center;
         ArrayList<LatLng> points;
@@ -80,8 +83,10 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
             this.name = name;
             this.id = id;
             this.map = map;
+            bounds = LatLngBounds.builder();
+            markers = new ArrayList<>();
             center = new LatLng(1,1);
-            //latLngs = new ArrayList<>();
+            points = new ArrayList<>();
             pf = new PolyFence();
             polyOptions = new PolygonOptions();
             polyOptions.fillColor(Color.argb(150, 89, 89, 94));
@@ -90,12 +95,13 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
             polyOptions.visible(true);
         }
 
-        public void setCenter(LatLng c){ center = c; }
-
         public Marker getCenterMarker(){
-            if(centerMarker != null)return centerMarker;
+            if(centerMarker != null){
+                Log.d("haxors", "Center marker already exists");
+                return centerMarker;
+            }
              centerMarker = map.addMarker(new MarkerOptions()
-                    .position(center)
+                    .position(bounds.build().getCenter())
                     .title(name)
                     .snippet(""));
             centerMarker.showInfoWindow();
@@ -116,11 +122,16 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
                     .title("")
                     .visible(visible)
                     .snippet(""));
+            markers.add(m);
+            bounds.include(marker);
+            points.add(marker);
         }
 
         public void removeMarkers(){
             for(Marker m:markers)m.remove();
         }
+
+        public ArrayList<LatLng> getPoints(){ return  points; }
 
         public String getName(){ return name; }
 
@@ -204,19 +215,16 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
 
                 Event e = new Event(snapshot.getKey(), snapshot.child("name").getValue(String.class), map);
 
-                LatLngBounds.Builder bounds = LatLngBounds.builder();
-
                 long cnt = snapshot.child("points").getChildrenCount();
                 for(int i = 0; i < cnt; i++){
                     Double lat = (Double)snapshot.child("points").child("" + i).child("latitude").getValue();
                     Double lon = (Double)snapshot.child("points").child("" + i).child("longitude").getValue();
                     LatLng ll = new LatLng(lat.doubleValue(), lon.doubleValue());
                     e.addMarker(ll, false);
-                    bounds.include(ll);
                 }
                 Point center = new Point(lastPos.latitude, lastPos.longitude);
-                e.setCenter(bounds.build().getCenter());
                 events.add(e);
+                map.addPolygon(e.getPolyOptions());
             }
 
             @Override
@@ -247,7 +255,6 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
             Point center = new Point(lastPos);
             if(pf.contains(center)){ //if the event is within the user's range, make the center marker visible
                 e.getCenterMarker();
-                map.addPolygon(e.getPolyOptions());
             }else{
                 e.removeCenterMarker();
             }
@@ -380,7 +387,7 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
                     clearMap();
                 }
 
-                myFirebaseRef.child("fences").child(user.getObjectId()).child("points").setValue(buildEvent);
+                myFirebaseRef.child("fences").child(user.getObjectId()).child("points").setValue(buildEvent.getPoints());
                 myFirebaseRef.child("fences").child(user.getObjectId()).child("name").setValue(name);
 
                 Toast.makeText(MapActivity.this, "Your fence has been created", Toast.LENGTH_LONG).show();

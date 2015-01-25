@@ -88,6 +88,7 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
         setContentView(R.layout.activity_events);
 
         eventID = getIntent().getStringExtra("eventId");
+        Log.d("HAXORS", eventID);
 
         mapFragment = SupportMapFragment.newInstance();
         mapFragment.getMapAsync(this);
