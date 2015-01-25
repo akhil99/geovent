@@ -55,6 +55,10 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     LatLng lastPos;
     ArrayList<LatLng>myPoints;
     ArrayList<GeoFence> geofences;
+
+    ArrayList<Marker> markers;
+    Marker centerMarker;
+
     Polygon polygon;
 
     Map<Marker, String> fences;
@@ -74,6 +78,7 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
 
         fences = new HashMap<>();
+        markers = new ArrayList<Marker>();
 
         myFirebaseRef = new Firebase("https://geovent.firebaseio.com/");
         user = ParseUser.getCurrentUser();
@@ -118,11 +123,12 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
 
             @Override
             public void onChildAdded(DataSnapshot snapshot, String s) {
-                Log.d("haxors", "data change");
                 ArrayList<LatLng> points = new ArrayList<LatLng>();
                 long cnt = snapshot.child("points").getChildrenCount();
                 PolygonOptions polyOptions = new PolygonOptions();
                 LatLngBounds.Builder bounds = LatLngBounds.builder();
+
+                PolyFence pf = new PolyFence();
 
                 for(int i = 0; i < cnt; i++){
                     Double lat = (Double)snapshot.child("points").child("" + i).child("latitude").getValue();
@@ -131,19 +137,29 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
                     points.add(ll);
                     polyOptions.add(ll);
                     bounds.include(ll);
+                    pf.addPoint(new Point(lat.doubleValue(), lon.doubleValue()));
                 }
+
+                Point curr = new Point(lastPos.latitude, lastPos.longitude);
+
                 polyOptions.fillColor(Color.argb(150, 89, 89, 94));
                 polyOptions.visible(true);
                 polyOptions.strokeColor(Color.argb(252, 89, 89, 94));
                 polyOptions.strokeWidth(10);
                 map.addPolygon(polyOptions);
-                Log.d("haxors", "name: " + snapshot.child("name").getValue(String.class));
-                Marker marker = map.addMarker(new MarkerOptions()
-                        .position(bounds.build().getCenter())
-                        .title(snapshot.child("name").getValue(String.class))
-                        .snippet(""));
-                marker.showInfoWindow();
-                fences.put(marker, snapshot.getKey());
+                if(pf.contains(curr)){
+                    Log.d("haxors", "contains: " + snapshot.child("name").getValue(String.class));
+                    Marker marker = map.addMarker(new MarkerOptions()
+                            .position(bounds.build().getCenter())
+                            .title(snapshot.child("name").getValue(String.class))
+                            .snippet(""));
+                    marker.showInfoWindow();
+
+                    fences.put(marker, snapshot.getKey());
+                }else{
+                    Log.d("haxors", "doesnt contain: " + snapshot.child("name").getValue(String.class));
+                }
+
             }
 
             @Override
@@ -190,7 +206,9 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
                     .position(getTapCoords())
                     .title("")
                     .snippet(""));
+            markers.add(marker);
             myPoints.add(latLng);
+
         }
     }
 
@@ -216,7 +234,7 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
             polyOptions.add(l);
             bounds.include(l);
         }
-        polyOptions.fillColor(Color.argb(252, 89, 89, 94));
+        polyOptions.fillColor(Color.argb(150, 89, 89, 94));
         polyOptions.visible(true);
         polyOptions.strokeColor(Color.argb(252, 89, 89, 94));
         polyOptions.strokeWidth(10);
@@ -227,6 +245,9 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
                 .position(center)
                 .title("Create Event"));
         createEventMarker.showInfoWindow();
+        centerMarker = createEventMarker;
+
+        for(Marker m:markers)m.remove();
 
         System.out.println(myPoints);
 
@@ -235,6 +256,12 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     public void clearMap(){
         if(polygon != null)polygon.remove();
         myPoints.clear();
+        for(Marker m:markers)m.remove();
+        markers.clear();
+        if(centerMarker != null){
+            centerMarker.remove();
+            centerMarker = null;
+        }
         isCreatingFence=false;
         tapCoords = new LatLng(1,1);
     }

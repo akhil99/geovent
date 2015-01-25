@@ -159,6 +159,7 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
                     polyOptions.visible(true);
                     polyOptions.strokeColor(Color.argb(252, 89, 89, 94));
                     polyOptions.strokeWidth(10);
+
                     if(map != null)map.addPolygon(polyOptions);
                     else queue.add(polyOptions);
                     Log.d("haxors", "name: " + dataSnapshot.child("name").getValue(String.class));
