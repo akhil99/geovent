@@ -3,6 +3,7 @@ package com.buildncode.geovent;
 import android.app.Application;
 import android.content.Intent;
 
+import com.firebase.client.Firebase;
 import com.parse.Parse;
 
 /**
@@ -12,6 +13,7 @@ public class App extends Application {
 
     public void onCreate() {
         Parse.initialize(this, "2oQh21PTJ6V1DsMueOpuqizeg75X9hDByaHfbSOj", "KV0sbEohfPsIpEK0WnFPM4TUNqOFIxiofjUMVYIx");
+        Firebase.setAndroidContext(this);
     }
 
 }
