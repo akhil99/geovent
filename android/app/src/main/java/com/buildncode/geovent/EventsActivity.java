@@ -1,5 +1,6 @@
 package com.buildncode.geovent;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,8 +16,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -27,11 +33,18 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.parse.ParseUser;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class EventsActivity extends ActionBarActivity implements ActionBar.TabListener,
@@ -57,20 +70,32 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
     GoogleApiClient mGoogleApiClient;
     ParseUser user;
 
+    ArrayList<PolygonOptions> queue;
+
     boolean mapMoved = false;
 
     Firebase myFirebaseRef;
 
+    String eventID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events);
+
+        eventID = getIntent().getStringExtra("eventId");
 
         mapFragment = SupportMapFragment.newInstance();
         mapFragment.getMapAsync(this);
 
-        myFirebaseRef = new Firebase("https://geovent.firebaseio.com/");
         user = ParseUser.getCurrentUser();
+        queue = new ArrayList<PolygonOptions>();
+
+        buildGoogleApiClient();
+
+        initFirebase();
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -107,6 +132,142 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
         }
     }
 
+    private void initFirebase(){
+        myFirebaseRef = new Firebase("https://geovent.firebaseio.com/");
+        myFirebaseRef.child("fences").addChildEventListener(new ChildEventListener() {
+
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                if (dataSnapshot.getKey().equals(eventID)) {
+                    String name = (String) dataSnapshot.child("name").getValue();
+                    getSupportActionBar().setTitle("Event: " + name);
+
+                    ArrayList<LatLng> points = new ArrayList<LatLng>();
+                    long cnt = dataSnapshot.child("points").getChildrenCount();
+                    PolygonOptions polyOptions = new PolygonOptions();
+
+                    for (int i = 0; i < cnt; i++) {
+                        Double lat = (Double) dataSnapshot.child("points").child("" + i).child("latitude").getValue();
+                        Double lon = (Double) dataSnapshot.child("points").child("" + i).child("longitude").getValue();
+                        LatLng ll = new LatLng(lat.doubleValue(), lon.doubleValue());
+                        points.add(ll);
+                        polyOptions.add(ll);
+                    }
+                    polyOptions.fillColor(Color.argb(150, 89, 89, 94));
+                    polyOptions.visible(true);
+                    polyOptions.strokeColor(Color.argb(252, 89, 89, 94));
+                    polyOptions.strokeWidth(10);
+                    if(map != null)map.addPolygon(polyOptions);
+                    else queue.add(polyOptions);
+                    Log.d("haxors", "name: " + dataSnapshot.child("name").getValue(String.class));
+
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        myFirebaseRef.child("users").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot snapshot, String s) {
+                Log.d("HAXORS", "child added, key: " + snapshot.getKey());
+                if(snapshot.getKey().equals(ParseUser.getCurrentUser().getObjectId())) {
+                    Log.d("HAXORS", "same key: " + snapshot.getKey());
+                }else if(snapshot.child("event").getValue().equals(eventID)){
+                    Log.d("HAXORS", "correct event");
+                    addUser(snapshot.getKey());
+
+                }else removeUser(snapshot.getKey());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot snapshot, String s) {
+                Log.d("HAXORS", "child changed, key: " + snapshot.getKey());
+                if(snapshot.getKey().equals(ParseUser.getCurrentUser().getObjectId())){
+                    Log.d("HAXORS", "same key: " + snapshot.getKey());
+                }else if(snapshot.child("event").equals(eventID)){
+                    Log.d("HAXORS", "correct event");
+                    addUser(snapshot.getKey());
+                }else removeUser(snapshot.getKey());
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot snapshot) {
+                removeUser(snapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot snapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+    }
+
+    Map<String, ValueEventListener> userListeners = new HashMap<String, ValueEventListener>();
+    Map<String, Marker> userMarkers = new HashMap<String, Marker>();
+
+    public void addUser(String userID){
+        Log.d("HAXORS", "add user");
+        if(userListeners.get(userID) == null)userListeners.put(userID, getValueEventListener(userID));
+        Firebase ref = myFirebaseRef.child("users").child(userID);
+        ref.addValueEventListener(userListeners.get(userID));
+    }
+
+    public void removeUser(String userID){
+        Log.d("HAXORS", "add user");
+        Firebase ref = myFirebaseRef.child("users").child(userID);
+        if(userListeners.get(userID) != null){
+            ref.removeEventListener(userListeners.get(userID));
+            userListeners.remove(userID);
+        }
+    }
+
+    private ValueEventListener getValueEventListener(final String userID){
+        return new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if(snapshot.child("latitude") == null)return;
+                double lat = snapshot.child("latitude").getValue(Double.class);
+                double lon = snapshot.child("longitude").getValue(Double.class);
+                LatLng ll = new LatLng(lat, lon);
+                if(userMarkers.get(userID) == null) {
+                    Marker m = map.addMarker(new MarkerOptions().position(ll).title(userID).snippet(""));
+                    userMarkers.put(userID, m);
+                }
+                userMarkers.get(userID).setPosition(new LatLng(lat, lon));
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {}
+        };
+    }
+
+
     @Override
     public void onLocationChanged(Location location) {
         Log.d("haxor", "location changed");
@@ -121,6 +282,8 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
         }
 
     }
+
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -138,15 +301,19 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
 
     public void onDestroy(){
         super.onDestroy();
+        myFirebaseRef.child("users").child(ParseUser.getCurrentUser().getObjectId())
+                .removeValue();
         if(mGoogleApiClient != null)mGoogleApiClient.disconnect();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d("haxor", "map ready");
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         googleMap.setMyLocationEnabled(true);
         map = googleMap;
         map.moveCamera(CameraUpdateFactory.zoomTo(17));
+        for(PolygonOptions o:queue)map.addPolygon(o);
     }
 
     protected void startLocationUpdates() {

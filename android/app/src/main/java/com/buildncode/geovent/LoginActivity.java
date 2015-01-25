@@ -30,8 +30,8 @@ public class LoginActivity extends Activity implements View.OnClickListener{
         password = (EditText)findViewById(R.id.edittext_password);
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
-            finishActivity();
-            //currentUser.logOut();
+            //finishActivity();
+            currentUser.logOut();
         }
     }
 
