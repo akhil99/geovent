@@ -1,0 +1,13 @@
+1.2.1
+	- Separate the APIs for start and open chat
+	- Invite members to chat API support
+	- Minor bug fixes
+
+1.2.0
+	- Push notification support
+	- Minor bug fixes
+
+1.0.0 
+	- Embed chat into App
+	- Start meet from embedded chat
+	- Create clip or annotate on content and share inside chat	

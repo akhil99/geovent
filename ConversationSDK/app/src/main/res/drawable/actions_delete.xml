@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/actions_delete_disable" android:state_enabled="false"/>
+    <item android:drawable="@drawable/actions_delete_normal"  android:state_enabled="true"/>
+
+</selector><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/drawable/actions_delete.xml -->

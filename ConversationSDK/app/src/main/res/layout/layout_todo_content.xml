@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="top">
+
+    <Space
+        android:id="@+id/spacer"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+
+    <ImageView
+        android:id="@+id/iv_todo_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/todo_checkbox" />
+
+    <TextView
+        android:id="@+id/tv_todo_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10px"
+        android:gravity="top"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:text="123213213213213"/>
+</LinearLayout><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/layout/layout_todo_content.xml -->

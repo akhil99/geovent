@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/darker_gray_36">
+
+    <GridView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@android:id/list"
+        android:listSelector="@android:color/transparent"
+        android:fastScrollEnabled="true"
+        android:clipToPadding="true"
+        android:scrollbarStyle="outsideOverlay"
+        android:numColumns="@integer/row_grid_count"
+        android:stretchMode="spacingWidthUniform"
+        android:horizontalSpacing="0dp"
+        android:verticalSpacing="15dp"
+        android:padding="10dp"
+        android:layout_centerInParent="true" />
+
+    <!--
+    <RelativeLayout
+        android:id="@android:id/empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <ImageView
+            android:id="@+id/iv_invite_attendees"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/liveshare_invite_attendee"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="30dp"
+            android:gravity="center"
+            android:text="Invite Attendees"
+            android:textColor="@android:color/white"
+            android:layout_alignLeft="@+id/iv_invite_attendees"
+            android:layout_alignRight="@+id/iv_invite_attendees"
+            android:layout_alignBottom="@+id/iv_invite_attendees" />
+
+    </RelativeLayout>
+    -->
+
+</RelativeLayout><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/layout/fragment_meet_control.xml -->

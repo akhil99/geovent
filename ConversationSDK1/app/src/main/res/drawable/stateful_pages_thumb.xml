@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/pages_thumb_check" android:state_checked="false"/>
+    <item android:drawable="@drawable/pages_thumb_check_selected" android:state_checked="true"/>
+
+</selector><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/drawable/stateful_pages_thumb.xml -->

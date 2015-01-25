@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical">
+
+    <EditText xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/et_comment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/task_note_background"
+        android:gravity="top|left"
+        android:inputType="text|textMultiLine" />
+
+</LinearLayout><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/layout/fragment_task_comment_edit.xml -->

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/nikcheerla/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.2.2/3c8f6018eaa72d43b261181e801e6f8676c16ef6/jackson-databind-2.2.2.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="3c8f6018eaa72d43b261181e801e6f8676c16ef6">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/jackson-databind-2.2.2-4abecd62e444b601d6ca0d67b1584a2e022cc78e.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.2.2/d20be6a5ddd6f8cfd36ebf6dea329873a1c41f1b/jackson-core-2.2.2.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d20be6a5ddd6f8cfd36ebf6dea329873a1c41f1b">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/jackson-core-2.2.2-94bb8dc36eca0dcec84949fb70e3e892f4140f04.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/classes-6ffbb0f2ac0c1602e409395b681802e3f421fa2b.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.3/support-annotations-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-d3ad1e65c8385c9a44ee72e7b159bc714d69a03e.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/classes-abd25fde1349a80a8068ba384b31c673b063bf81.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/libs/Parse-1.8.2.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="c2cb0bfe37cbefd855b6faa3c9a5be833aba7300">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/Parse-1.8.2-ea69fb3ff572107463f0c400f4186a0dcd05da9c.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.2.2/285cb9c666f0f0f3dd8a1be04e1f457eb7b15113/jackson-annotations-2.2.2.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="285cb9c666f0f0f3dd8a1be04e1f457eb7b15113">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/jackson-annotations-2.2.2-8006e67247655b8b932fb477fda479187cf8ad98.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/.gradle/caches/modules-2/files-2.1/com.firebase/firebase-client-jvm/2.1.1/4df80ea443d3acad1a5a6936f0561e1db60bd196/firebase-client-jvm-2.1.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4df80ea443d3acad1a5a6936f0561e1db60bd196">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/firebase-client-jvm-2.1.1-2a129f9f3951ec9ab114616873306fa88e3ee290.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/libs/internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-9ff5461b825c917a5052d8dd010c884ad967c04f.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/exploded-aar/com.facebook.android/facebook-android-sdk/3.21.1/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="0285ad8da812e92dda76ed5d0dcba05724c7911d">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/classes-f034745d9c5f075a75c4d231e80704a6227e6200.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/.gradle/caches/modules-2/files-2.1/com.firebase/tubesock/0.0.10/ddce2c65136c1de8000f8932d8b7ab16d5d336b9/tubesock-0.0.10.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="ddce2c65136c1de8000f8932d8b7ab16d5d336b9">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/tubesock-0.0.10-9e09b7c01cf2704df7993a1556e7114c1c5c600b.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.5.87/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/classes-dc0be68e1aef9c9c90c6e24c3b84a9184fad3647.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/.gradle/caches/modules-2/files-2.1/com.firebase/firebase-client-android/2.1.1/a68e32b8f34baf15b96e2e4b5913efd8bb2be0c9/firebase-client-android-2.1.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a68e32b8f34baf15b96e2e4b5913efd8bb2be0c9">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/firebase-client-android-2.1.1-e7f6374ac60c516b6c23fde131da7610818f23ae.jar" />
+    </item>
+    <item
+        jar="/Users/nikcheerla/.gradle/caches/modules-2/files-2.1/com.parse.bolts/bolts-android/1.1.4/129874135e6081269ace2312092031558865de12/bolts-android-1.1.4.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="129874135e6081269ace2312092031558865de12">
+        <dex dex="/Users/nikcheerla/Dropbox/GeoVent/geovent/android/app/build/intermediates/pre-dexed/debug/bolts-android-1.1.4-20085ac4ff4fe9e6c6e6a5d83e8a8f0a5a15e3ba.jar" />
+    </item>
+
+</items>

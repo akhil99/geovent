@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/pageview_laser_pointer_selected" android:state_checked="true" android:state_enabled="true"></item>
+    <item android:drawable="@drawable/pageview_laser_pointer" android:state_checked="false"></item>
+</selector><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/drawable/selector_annotation_laserpoint.xml -->

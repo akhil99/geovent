@@ -101,7 +101,8 @@ public class LoginActivity extends Activity implements View.OnClickListener{
 
     private void finishActivity() {
         Log.d(TAG, "finish activity");
-        Intent map = new Intent(this, MapActivity.class);
+        //Intent map = new Intent(this, MapActivity.class);
+        Intent map = new Intent(this, EventsActivity.class);
         startActivity(map);
         finish();
     }

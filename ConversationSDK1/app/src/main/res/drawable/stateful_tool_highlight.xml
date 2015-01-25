@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/annotation_highlight_selected" android:state_selected="true"/>
+    <item android:drawable="@drawable/annotation_highlight_button"/>
+
+</selector>
+<!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/drawable/stateful_tool_highlight.xml -->

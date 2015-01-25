@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/et_input"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left|top"
+        android:singleLine="false"
+        android:background="@drawable/text_textbox"
+        android:imeOptions="actionDone">
+
+        <requestFocus />
+    </EditText>
+
+    <ImageButton
+        android:id="@+id/iv_resize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="@null"
+        android:adjustViewBounds="true"
+        android:src="@drawable/text_textbox_resize"
+        android:baselineAlignBottom="false" />
+
+</RelativeLayout><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/layout/layout_input_box.xml -->

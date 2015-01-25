@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/todo_attachment_indicator_gray" android:state_enabled="false" />
+    <item android:drawable="@drawable/todo_attachment_indicator_blue" />
+
+</selector><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/drawable/task_attachment_selector.xml -->

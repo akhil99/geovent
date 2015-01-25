@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/story_content3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/story_slide_tiled_bg">
+
+        <TextView
+            style="@style/MXStoryPageTitle"
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/Meet_in_Real_Time" />
+
+        <ImageView
+            android:id="@+id/story3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/title"
+            android:layout_marginBottom="10dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/story3" />
+
+
+        <TextView
+            style="@style/MXStoryPageSubtitle"
+            android:id="@+id/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/story3"
+            android:layout_centerHorizontal="true"
+            android:text="@string/Real_time_voice_call_with_screen_sharing_and_presentation" />
+
+    </RelativeLayout>
+</FrameLayout>
+<!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/layout/layout_story_page3.xml -->
