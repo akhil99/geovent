@@ -13,8 +13,13 @@ public class MapActivity extends ActionBarActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mapView = new MapView(this);
-        mapView.setUserLocationEnabled(true);
-        setContentView(mapView);
+        setContentView(R.layout.activity_map);
+        initMapView();
     }
+
+    private void initMapView(){
+        mapView = (MapView)findViewById(R.id.mapview);
+        mapView.setUserLocationEnabled(true);
+    }
+
 }

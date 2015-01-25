@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -9,5 +9,17 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.buildncode.geovent.MapActivity">
 
+    <com.mapbox.mapboxsdk.views.MapView
+    android:id="@+id/mapview"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    mapbox:mapid="theakhil.l1ho5e2h" />
 
-</RelativeLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TEST"
+        android:layout_gravity="end|bottom"
+        />
+
+</FrameLayout>
