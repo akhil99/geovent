@@ -1,43 +1,20 @@
 package com.buildncode.geovent;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
 
 import com.mapbox.mapboxsdk.views.MapView;
 
 
-public class MapActivity extends ActionBarActivity {
+public class MapActivity extends ActionBarActivity{
+
+    MapView mapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //MapView mapView = new MapView(this, "examples.map-vyofok3q");
-        //setContentView(mapView);
-        setContentView(R.layout.activity_map);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_map, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        mapView = new MapView(this);
+        mapView.setUserLocationEnabled(true);
+        setContentView(mapView);
     }
 }
