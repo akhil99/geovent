@@ -51,59 +51,120 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
 
     Firebase myFirebaseRef;
 
-    LatLng tapCoords;
     LatLng lastPos;
-    ArrayList<LatLng>myPoints;
-    ArrayList<GeoFence> geofences;
 
-    ArrayList<Marker> markers;
-    Marker centerMarker;
+    ArrayList<Event> events;
+    Event buildEvent;
 
-    Polygon polygon;
+    public static class Event{
 
-    Map<Marker, String> fences;
+        LatLng center;
+        ArrayList<LatLng> points;
+
+        Marker centerMarker;
+        ArrayList<Marker> markers;
+
+        PolyFence pf;
+        String name;
+        String id;
+
+        PolygonOptions polyOptions;
+
+        GoogleMap map;
+
+        public Event(String id, GoogleMap map){
+            this(id, "test", map);
+        }
+
+        public Event(String id, String name, GoogleMap map){
+            this.name = name;
+            this.id = id;
+            this.map = map;
+            center = new LatLng(1,1);
+            //latLngs = new ArrayList<>();
+            pf = new PolyFence();
+            polyOptions = new PolygonOptions();
+            polyOptions.fillColor(Color.argb(150, 89, 89, 94));
+            polyOptions.strokeColor(Color.argb(252, 89, 89, 94));
+            polyOptions.strokeWidth(10);
+            polyOptions.visible(true);
+        }
+
+        public void setCenter(LatLng c){ center = c; }
+
+        public Marker getCenterMarker(){
+            if(centerMarker != null)return centerMarker;
+             centerMarker = map.addMarker(new MarkerOptions()
+                    .position(center)
+                    .title(name)
+                    .snippet(""));
+            centerMarker.showInfoWindow();
+            return centerMarker;
+        }
+
+        public void removeCenterMarker(){
+            if(centerMarker != null)centerMarker.remove();
+            centerMarker = null;
+        }
+
+        public void addMarker(LatLng marker, boolean visible){
+            //latLngs.add(marker);
+            pf.addPoint(new Point(marker));
+            polyOptions.add(marker);
+            Marker m = map.addMarker(new MarkerOptions()
+                    .position(marker)
+                    .title("")
+                    .visible(visible)
+                    .snippet(""));
+        }
+
+        public void removeMarkers(){
+            for(Marker m:markers)m.remove();
+        }
+
+        public String getName(){ return name; }
+
+        public String getId(){ return id; }
+
+        public PolygonOptions getPolyOptions(){ return polyOptions; }
+
+        public PolyFence getPf(){ return pf; }
+
+    }
 
     GoogleApiClient mGoogleApiClient;
+
     ParseUser user;
 
     boolean mapMoved = false;
     boolean isCreatingFence = false;
-
-
-    Marker createEventMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        fences = new HashMap<>();
-        markers = new ArrayList<Marker>();
-
-        myFirebaseRef = new Firebase("https://geovent.firebaseio.com/");
         user = ParseUser.getCurrentUser();
-        loadFirebase();
+
+        events = new ArrayList<Event>();
 
         Button newFence = (Button) findViewById(R.id.newFence);
         isCreatingFence=false;
-        tapCoords = new LatLng(1,1);
-        myPoints = new ArrayList<LatLng>();
-        geofences = new ArrayList<GeoFence> ();
+        lastPos = new LatLng(1, 1);
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        buildGoogleApiClient();
 
         newFence.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(isCreatingFence){ //if it finished, draw the fence
                     drawFence();
-                    isCreatingFence = !isCreatingFence;
+                    isCreatingFence = false;
                 }
                 else{ //otherwise, start creating a fence
                     clearMap();
-                    isCreatingFence = !isCreatingFence;
+                    isCreatingFence = true;
                     startFenceCreation();
                 }
 
@@ -112,54 +173,50 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
         });
 
     }
-    public void pushGeoFence(){
-        geofences.add(createFence(myPoints));
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        googleMap.setMyLocationEnabled(true);
+        map = googleMap;
+        buildEvent = new Event(ParseUser.getCurrentUser().getObjectId(), map);
+        map.setOnMapClickListener(this);
+        map.setOnMarkerClickListener(this);
+        buildGoogleApiClient();
+        loadFirebase();
     }
 
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
 
     private void loadFirebase(){
+        myFirebaseRef = new Firebase("https://geovent.firebaseio.com/");
         myFirebaseRef.child("fences").addChildEventListener(new ChildEventListener() {
-            // Retrieve new posts as they are added to Firebase
 
             @Override
             public void onChildAdded(DataSnapshot snapshot, String s) {
-                ArrayList<LatLng> points = new ArrayList<LatLng>();
-                long cnt = snapshot.child("points").getChildrenCount();
-                PolygonOptions polyOptions = new PolygonOptions();
+
+                Event e = new Event(snapshot.getKey(), snapshot.child("name").getValue(String.class), map);
+
                 LatLngBounds.Builder bounds = LatLngBounds.builder();
 
-                PolyFence pf = new PolyFence();
-
+                long cnt = snapshot.child("points").getChildrenCount();
                 for(int i = 0; i < cnt; i++){
                     Double lat = (Double)snapshot.child("points").child("" + i).child("latitude").getValue();
                     Double lon = (Double)snapshot.child("points").child("" + i).child("longitude").getValue();
                     LatLng ll = new LatLng(lat.doubleValue(), lon.doubleValue());
-                    points.add(ll);
-                    polyOptions.add(ll);
+                    e.addMarker(ll, false);
                     bounds.include(ll);
-                    pf.addPoint(new Point(lat.doubleValue(), lon.doubleValue()));
                 }
-
-                Point curr = new Point(lastPos.latitude, lastPos.longitude);
-
-                polyOptions.fillColor(Color.argb(150, 89, 89, 94));
-                polyOptions.visible(true);
-                polyOptions.strokeColor(Color.argb(252, 89, 89, 94));
-                polyOptions.strokeWidth(10);
-                map.addPolygon(polyOptions);
-                if(pf.contains(curr)){
-                    Log.d("haxors", "contains: " + snapshot.child("name").getValue(String.class));
-                    Marker marker = map.addMarker(new MarkerOptions()
-                            .position(bounds.build().getCenter())
-                            .title(snapshot.child("name").getValue(String.class))
-                            .snippet(""));
-                    marker.showInfoWindow();
-
-                    fences.put(marker, snapshot.getKey());
-                }else{
-                    Log.d("haxors", "doesnt contain: " + snapshot.child("name").getValue(String.class));
-                }
-
+                Point center = new Point(lastPos.latitude, lastPos.longitude);
+                e.setCenter(bounds.build().getCenter());
+                events.add(e);
             }
 
             @Override
@@ -184,15 +241,29 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
         });
     }
 
-    private void setEvent(String id){
-        Firebase ref = myFirebaseRef.child("users").child(ParseUser.getCurrentUser().getObjectId());
+    private void loadEvents(){
+        for(Event e:events){
+            PolyFence pf = e.getPf();
+            Point center = new Point(lastPos);
+            if(pf.contains(center)){ //if the event is within the user's range, make the center marker visible
+                e.getCenterMarker();
+                map.addPolygon(e.getPolyOptions());
+            }else{
+                e.removeCenterMarker();
+            }
+        }
+    }
+
+
+    private void setEvent(Event e){
+        Firebase ref = myFirebaseRef.child("users").child(user.getObjectId());
         Map<String, Object> m = new HashMap<String, Object>();
-        m.put("event", id);
+        m.put("event", e.getId());
         m.put("latitude", lastPos.latitude);
         m.put("longitude", lastPos.longitude);
         ref.setValue(m);
         Intent map = new Intent(this, EventsActivity.class);
-        map.putExtra("eventId", id);
+        map.putExtra("eventId", e.getId());
         startActivity(map);
     }
 
@@ -200,20 +271,10 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     public void onMapClick(LatLng latLng) {
         System.out.println("latLng");
         if(isCreatingFence){
-                tapCoords = latLng;
                 Toast.makeText(this, "Tap a spot or tap the button again to complete the fence", Toast.LENGTH_SHORT).show();
-                Marker marker = map.addMarker(new MarkerOptions()
-                    .position(getTapCoords())
-                    .title("")
-                    .snippet(""));
-            markers.add(marker);
-            myPoints.add(latLng);
+                buildEvent.addMarker(latLng, true);
 
         }
-    }
-
-    public LatLng getTapCoords(){
-        return tapCoords;
     }
 
     public void startFenceCreation(){
@@ -228,51 +289,14 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
 
     public void drawFence(){
         Log.d("haxor", "draw fence");
-        PolygonOptions polyOptions = new PolygonOptions();
-        LatLngBounds.Builder bounds = LatLngBounds.builder();
-        for(LatLng l: myPoints){
-            polyOptions.add(l);
-            bounds.include(l);
-        }
-        polyOptions.fillColor(Color.argb(150, 89, 89, 94));
-        polyOptions.visible(true);
-        polyOptions.strokeColor(Color.argb(252, 89, 89, 94));
-        polyOptions.strokeWidth(10);
-        polygon = map.addPolygon(polyOptions);
-        LatLng center = bounds.build().getCenter();
-
-        createEventMarker = map.addMarker(new MarkerOptions()
-                .position(center)
-                .title("Create Event"));
-        createEventMarker.showInfoWindow();
-        centerMarker = createEventMarker;
-
-        for(Marker m:markers)m.remove();
-
-        System.out.println(myPoints);
-
+        buildEvent.removeMarkers();
+        map.addPolygon(buildEvent.getPolyOptions());
+        buildEvent.getCenterMarker();
     }
 
     public void clearMap(){
-        if(polygon != null)polygon.remove();
-        myPoints.clear();
-        for(Marker m:markers)m.remove();
-        markers.clear();
-        if(centerMarker != null){
-            centerMarker.remove();
-            centerMarker = null;
-        }
         isCreatingFence=false;
-        tapCoords = new LatLng(1,1);
-    }
-
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        mGoogleApiClient.connect();
+        buildEvent = new Event(ParseUser.getCurrentUser().getObjectId(), map);
     }
 
     protected void startLocationUpdates() {
@@ -284,15 +308,6 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        googleMap.setMyLocationEnabled(true);
-        map = googleMap;
-        map.setOnMapClickListener(this);
-        map.setOnMarkerClickListener(this);
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
         Log.d("haxor", "location changed");
         LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -301,6 +316,7 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
             map.moveCamera(CameraUpdateFactory.newLatLng(latlng));
             mapMoved = true;
         }
+        loadEvents();
 
     }
 
@@ -330,16 +346,16 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.d("haxor", "marker click");
-        if(marker.equals(createEventMarker)){
-            Log.d("haxor", "getting event name");
+        if(marker.equals(buildEvent.centerMarker)){
             getEventName();
         }else{
-            String eventId = fences.get(marker);
-            if(eventId != null){
-                Log.d("haxor", "event id: " + eventId);
-                setEvent(eventId);
+            for(Event e:events){
+                Log.d("haxor", "event: " + e.getName());
+                if(e.getCenterMarker().equals(marker)){
+                    Log.d("haxor", "starting event: " + e.getName());
+                    setEvent(e);
+                }
             }
-
         }
         return true;
     }
@@ -359,16 +375,16 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String name = input.getText().toString();
-                if(name == ""){
+                if (name == "") {
                     dialog.cancel();
                     clearMap();
                 }
 
-                myFirebaseRef.child("fences").child(user.getObjectId()).child("points").setValue(myPoints);
+                myFirebaseRef.child("fences").child(user.getObjectId()).child("points").setValue(buildEvent);
                 myFirebaseRef.child("fences").child(user.getObjectId()).child("name").setValue(name);
-                myPoints.clear();
+
                 Toast.makeText(MapActivity.this, "Your fence has been created", Toast.LENGTH_LONG).show();
-                setEvent(ParseUser.getCurrentUser().getObjectId());
+                setEvent(buildEvent);
             }
         });
 
@@ -381,14 +397,6 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
         });
 
         builder.show();
-    }
-    public GeoFence createFence(ArrayList<LatLng> list){
-        PolyFence fence = new PolyFence();
-        for(LatLng i: list){
-            fence.addPoint(new Point(i.longitude, i.latitude));
-        }
-        fence.seedPoints();
-        return fence;
     }
 
 }

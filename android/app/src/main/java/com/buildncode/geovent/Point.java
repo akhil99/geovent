@@ -1,9 +1,16 @@
 package com.buildncode.geovent;
 
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class Point{
     double x;
     double y;
+
+    public Point(LatLng latLng){
+        this(latLng.latitude, latLng.longitude);
+    }
+
     public Point(double px, double py){
         x = px;
         y = py;
