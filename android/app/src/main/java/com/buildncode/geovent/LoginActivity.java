@@ -93,6 +93,7 @@ public class LoginActivity extends Activity implements View.OnClickListener{
                     Log.d(TAG, "SIGNED UP");
                     finishActivity();
                 } else {
+                    Log.d(TAG, e.getMessage());
                     // Sign up didn't succeed. Look at the ParseException
                     // to figure out what went wrong
                 }

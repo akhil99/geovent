@@ -1,12 +1,20 @@
 package com.buildncode.geovent;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.media.CameraProfile;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.graphics.Color;
 
@@ -23,6 +31,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.parse.ParseUser;
 
 import org.json.JSONObject;
@@ -43,15 +52,17 @@ import com.buildncode.geovent.PolyFence;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 
-public class MapActivity extends ActionBarActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapClickListener {
+public class MapActivity extends ActionBarActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapClickListener, GoogleMap.OnMarkerClickListener {
 
     GoogleMap map;
 
     Firebase myFirebaseRef;
 
-    boolean isCreatingFence;
     LatLng tapCoords;
     ArrayList<LatLng>myPoints;
 
@@ -59,6 +70,9 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     ParseUser user;
 
     boolean mapMoved = false;
+    boolean isCreatingFence = false;
+
+    Marker createEventMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,29 +87,41 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
         tapCoords = new LatLng(1,1);
         myPoints = new ArrayList<LatLng>();
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         buildGoogleApiClient();
 
         newFence.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("ishere");
-                isCreatingFence = !isCreatingFence;
-                if(!isCreatingFence)
+                if(isCreatingFence){ //if it finished, draw the fence
                     drawFence();
-                startFenceCreation();
+                    isCreatingFence = !isCreatingFence;
+                }
+                else{ //otherwise, start creating a fence
+                    clearMap();
+                    isCreatingFence = !isCreatingFence;
+                    startFenceCreation();
+                }
+
             }
+
         });
 
     }
+
+    private void finishActivity(){
+        Intent map = new Intent(this, EventsActivity.class);
+        startActivity(map);
+        finish();
+    }
+
     @Override
     public void onMapClick(LatLng latLng) {
         System.out.println("latLng");
         if(isCreatingFence){
             tapCoords = latLng;
-            Toast.makeText(this, "Tap a spot or tap the button again to complete the fence", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Tap a spot or tap the button again to complete the fence", Toast.LENGTH_SHORT).show();
             Marker marker = map.addMarker(new MarkerOptions()
                     .position(getTapCoords())
                     .title("")
@@ -103,55 +129,28 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
             myPoints.add(latLng);
         }
     }
+
     public LatLng getTapCoords(){
         return tapCoords;
     }
+
     public void startFenceCreation(){
         if(isCreatingFence) {
             System.out.println("made toast");
             Toast.makeText(this, "Tap points to create a polygonal fence!", Toast.LENGTH_LONG).show();
-
-
         }else{
             Toast.makeText(this, "Your fence has been created", Toast.LENGTH_LONG).show();
             drawFence();
         }
-
     }
-    /*public ArrayList<Point> createFence() {
-
-        while(isCreatingFence){
-
-        }
-        return myPoints;
-    }*/
 
     public void drawFence(){
         Log.d("haxor", "draw fence");
-        //Polygon polygon = Polygon2.genPolygon(polygon2, Color strokeColor, Color fillColor);
-        //Polygon polygon = map.addPolygon(genOptions()
-        /*Polygon polygon = map.addPolygon(new PolygonOptions()
-                .add(new LatLng(37.48539817893045, -122.20416817814112))
-                .add(new LatLng(37.48529016480885, -122.20204722136259))
-                .add(new LatLng(37.48415520895677, -122.20178235322236))
-                .add(new LatLng(37.48539817893045, -122.20416817814112))
-                .strokeColor(Color.RED)
-                .fillColor(Color.BLUE)
-                .visible(true)
-                .strokeWidth(50));
-        map.addPolygon(new PolygonOptions()
-                .add(new LatLng(-33.866, 151.195))  // Sydney
-                .add(new LatLng(21.291, -157.821))  // Hawaii
-                .add(new LatLng(37.423, -122.091))  // Mountain View
-                .add(new LatLng(-18.142, 178.431))  // Fiji
-                .add(new LatLng(-33.866, 151.195))  // Sydney
-                .fillColor(Color.GRAY)
-                .visible(true)
-                .strokeColor(Color.GREEN)
-                .strokeWidth(50));*/
         PolygonOptions p = new PolygonOptions();
+        LatLngBounds.Builder bounds = LatLngBounds.builder();
         for(LatLng l: myPoints){
             p.add(l);
+            bounds.include(l);
         }
         p.fillColor(Color.argb(252, 89, 89, 94));
         p.visible(true);
@@ -159,20 +158,23 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
         p.strokeWidth(10);
         map.addPolygon(p);
 
+        LatLng center = bounds.build().getCenter();
 
+        createEventMarker = map.addMarker(new MarkerOptions()
+                .position(center)
+                .title("Create Event"));
+        createEventMarker.showInfoWindow();
 
-
-        //polygon.setPoints(Polygon2.getPolyPoints(polygon2));
-        //Polygon polygon = map.addPolygon(new PolygonOptions()
-                //.strokeColor(Color.RED)
-                //.fillColor(Color.BLUE));
-       // polygon.setPoints(Polygon2.getPolyPoints(polygon2));
         System.out.println(myPoints);
-
 
     }
 
-
+    public void clearMap(){
+        map.clear();
+        myPoints.clear();
+        isCreatingFence=false;
+        tapCoords = new LatLng(1,1);
+    }
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -197,6 +199,7 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
         googleMap.setMyLocationEnabled(true);
         map = googleMap;
         map.setOnMapClickListener(this);
+        map.setOnMarkerClickListener(this);
     }
 
     @Override
@@ -235,4 +238,54 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
         super.onDestroy();
         if(mGoogleApiClient != null)mGoogleApiClient.disconnect();
     }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        Log.d("haxor", "marker click");
+        if(marker.equals(createEventMarker)){
+            Log.d("haxor", "getting event name");
+            getEventName();
+        }
+        return true;
+    }
+
+    private void getEventName(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Event Name");
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String name = input.getText().toString();
+                if(name == ""){
+                    dialog.cancel();
+                    clearMap();
+                }
+
+                myFirebaseRef.child("fences").child(user.getObjectId()).setValue(myPoints);
+                myFirebaseRef.child("fences").child(user.getObjectId()).child("name").setValue(name);
+                myPoints.clear();
+                Toast.makeText(MapActivity.this, "Your fence has been created", Toast.LENGTH_LONG).show();
+                finishActivity();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                clearMap();
+            }
+        });
+
+        builder.show();
+    }
+
 }

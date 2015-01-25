@@ -1,28 +1,41 @@
 package com.buildncode.geovent;
 
-import java.util.Locale;
-
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.location.Location;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.support.v4.app.ListFragment;
-import android.widget.TextView;
+
+import com.firebase.client.Firebase;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseUser;
+
+import org.json.JSONObject;
+
+import java.util.Locale;
 
 
-public class EventsActivity extends ActionBarActivity implements ActionBar.TabListener {
+public class EventsActivity extends ActionBarActivity implements ActionBar.TabListener,
+        OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -39,11 +52,25 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
      */
     ViewPager mViewPager;
 
+    SupportMapFragment mapFragment;
+    GoogleMap map;
+    GoogleApiClient mGoogleApiClient;
+    ParseUser user;
+
+    boolean mapMoved = false;
+
+    Firebase myFirebaseRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events);
 
+        mapFragment = SupportMapFragment.newInstance();
+        mapFragment.getMapAsync(this);
+
+        myFirebaseRef = new Firebase("https://geovent.firebaseio.com/");
+        user = ParseUser.getCurrentUser();
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -80,27 +107,63 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
         }
     }
 
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_events, menu);
-        return true;
+    public void onLocationChanged(Location location) {
+        Log.d("haxor", "location changed");
+        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        JSONObject data = new JSONObject();
+        myFirebaseRef.child("users").child(user.getObjectId()).child("latitude").setValue(location.getLatitude());
+        myFirebaseRef.child("users").child(user.getObjectId()).child("longitude").setValue(location.getLongitude());
+        if(map != null && !mapMoved){
+            map.moveCamera(CameraUpdateFactory.newLatLng(latlng));
+            mapMoved = true;
+        }
+
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void onConnected(Bundle bundle) {
+        Log.d("haxor", "connected");
+        startLocationUpdates();
+    }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+    public void onConnectionSuspended(int i) {
 
-        return super.onOptionsItemSelected(item);
+    }
+
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    public void onDestroy(){
+        super.onDestroy();
+        if(mGoogleApiClient != null)mGoogleApiClient.disconnect();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        googleMap.setMyLocationEnabled(true);
+        map = googleMap;
+        map.moveCamera(CameraUpdateFactory.zoomTo(17));
+    }
+
+    protected void startLocationUpdates() {
+        LocationRequest r = LocationRequest.create();
+        r.setInterval(10000);
+        r.setFastestInterval(1000);
+        r.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, r, this);
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -132,13 +195,14 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            switch (position){
-                case 0: return MembersFragment.newInstance(1);
-                case 1: return EventFragment.newInstance(2);
-                case 2: return ChatFragment.newInstance(3);
-
+            switch (position) {
+                case 0:
+                    return mapFragment;
+                case 1:
+                    return MembersFragment.newInstance(2);
+                case 2:
+                    return ChatFragment.newInstance(3);
             }
-
             return null;
         }
 
@@ -153,19 +217,15 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
             Locale l = Locale.getDefault();
             switch (position) {
                 case 0:
-                    return getString(R.string.members_tab_name);
-                case 1:
                     return getString(R.string.events_tab_name);
+                case 1:
+                    return getString(R.string.members_tab_name);
                 case 2:
                     return getString(R.string.chat_tab_name);
             }
             return null;
         }
     }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
 
     public static class MembersFragment extends ListFragment {
         /**
@@ -219,39 +279,6 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
             return rootView;
         }*/
     }
-
-
-    public static class EventFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static EventFragment newInstance(int sectionNumber) {
-            EventFragment fragment = new EventFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-
-            return fragment;
-        }
-
-        public EventFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_events, container, false);
-            return rootView;
-        }
-    }
-
 
     public static class ChatFragment extends Fragment {
         /**

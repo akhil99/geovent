@@ -7,8 +7,8 @@
     <string name="app_id">1539262213006932</string>
     <string name="title_activity_map">" Map"</string>
     <string name="title_activity_events">EventsActivity</string>
-    <string name="chat_tab_name">Section 1</string>
-    <string name="events_tab_name">Section 2</string>
-    <string name="members_tab_name">Section 3</string>
+    <string name="chat_tab_name">Chat</string>
+    <string name="events_tab_name">Map</string>
+    <string name="members_tab_name">Members</string>
 
 </resources>
