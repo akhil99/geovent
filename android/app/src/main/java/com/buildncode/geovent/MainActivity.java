@@ -53,7 +53,6 @@ public class MainActivity extends ActionBarActivity {
     private void signIn(){
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
-            Toast.makeText(this, "Signed in!", Toast.LENGTH_LONG).show();
             Intent map = new Intent(this, MapActivity.class);
             startActivity(map);
         } else {
