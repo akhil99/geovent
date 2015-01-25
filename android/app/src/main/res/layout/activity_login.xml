@@ -13,7 +13,10 @@
         android:text="Sign In"
         android:id="@+id/signintitle"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textIsSelectable="false"
+        android:textSize="40sp"
+        android:layout_marginTop="20dp" />
 
     <EditText
         android:layout_width="fill_parent"
@@ -21,7 +24,7 @@
         android:id="@+id/edittext_username"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
-        android:hint="email"
+        android:hint="Email"
         android:layout_below="@id/signintitle" />
 
     <EditText
@@ -42,6 +45,17 @@
         android:id="@+id/login_button"
         android:layout_below="@+id/edittext_password"
         android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:background="@color/primary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="or"
+        android:layout_margin="10dp"
+        android:id="@+id/textView"
+        android:layout_below="@+id/login_button"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -49,15 +63,11 @@
         android:layout_height="wrap_content"
         android:text="Sign Up"
         android:id="@+id/signup_button"
-        android:layout_below="@id/login_button"
+        android:layout_below="@id/textView"
         android:layout_marginTop="5dp"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:background="#3F51B5" />
 
-    <com.facebook.widget.LoginButton
-        android:id="@+id/login_facebook"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/signup_button"
-        android:layout_marginTop="30dp" />
+
 
 </RelativeLayout>
