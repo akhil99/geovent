@@ -22,6 +22,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+        exclude 'META-INF/NOTICE'
+    }
 }
 
 repositories {
@@ -37,4 +42,5 @@ dependencies {
     compile 'com.firebase:firebase-client-android:2.1.1+'
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
     compile fileTree(dir: 'libs', include: 'Parse-*.jar')
+    compile 'com.firebase:firebase-client-android:2.1.1+'
 }

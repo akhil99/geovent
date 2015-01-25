@@ -30,7 +30,8 @@ public class LoginActivity extends Activity implements View.OnClickListener{
         password = (EditText)findViewById(R.id.edittext_password);
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
-            currentUser.logOut();
+            finishActivity();
+            //currentUser.logOut();
         }
     }
 
@@ -102,7 +103,7 @@ public class LoginActivity extends Activity implements View.OnClickListener{
     private void finishActivity() {
         Log.d(TAG, "finish activity");
         //Intent map = new Intent(this, MapActivity.class);
-        Intent map = new Intent(this, EventsActivity.class);
+        Intent map = new Intent(this, MapActivity.class);
         startActivity(map);
         finish();
     }
