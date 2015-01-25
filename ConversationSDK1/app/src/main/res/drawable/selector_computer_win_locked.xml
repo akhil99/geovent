@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/computer_win_locked_disable" android:state_enabled="false" />
-    <item android:drawable="@drawable/computer_win_locked" android:state_enabled="true" />
-</selector><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/drawable/selector_computer_win_locked.xml -->

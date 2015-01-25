@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<item android:drawable="@drawable/todo_checkbox__pressed" android:state_checked="false" android:state_pressed="true" />-->
-    <item android:drawable="@drawable/todo_checkbox" android:state_checked="false" />
-    <!--<item android:drawable="@drawable/todo_checkbox_checked_pressed" android:state_checked="true" android:state_pressed="true" />-->
-    <item android:drawable="@drawable/todo_checkbox_finished" android:state_checked="true" />
-    <item android:drawable="@drawable/todo_checkbox" />
-</selector><!-- From: file:/Users/Breeze/Downloads/Products/Android/IntelliJ/trunk/moxtrasdk/products/ConversationSDK/src/main/res/drawable/task_checkbox_selector.xml -->
