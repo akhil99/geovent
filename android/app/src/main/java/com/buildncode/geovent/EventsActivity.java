@@ -70,6 +70,8 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
     GoogleApiClient mGoogleApiClient;
     ParseUser user;
 
+    LocationRequest locationRequest;
+
     ArrayList<PolygonOptions> queue;
 
     boolean mapMoved = false;
@@ -204,7 +206,7 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
                 Log.d("HAXORS", "child changed, key: " + snapshot.getKey());
                 if(snapshot.getKey().equals(ParseUser.getCurrentUser().getObjectId())){
                     Log.d("HAXORS", "same key: " + snapshot.getKey());
-                }else if(snapshot.child("event").equals(eventID)){
+                }else if(snapshot.child("event").getValue().equals(eventID)){
                     Log.d("HAXORS", "correct event");
                     addUser(snapshot.getKey());
                 }else removeUser(snapshot.getKey());
@@ -239,11 +241,15 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
     }
 
     public void removeUser(String userID){
-        Log.d("HAXORS", "add user");
+        Log.d("HAXORS", "remove user");
         Firebase ref = myFirebaseRef.child("users").child(userID);
         if(userListeners.get(userID) != null){
             ref.removeEventListener(userListeners.get(userID));
             userListeners.remove(userID);
+        }
+        if(userMarkers.get(userID) != null){
+            userMarkers.get(userID).remove();
+            userMarkers.put(userID, null);
         }
     }
 
@@ -251,15 +257,16 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
         return new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                if(snapshot.child("latitude") == null)return;
-                double lat = snapshot.child("latitude").getValue(Double.class);
-                double lon = snapshot.child("longitude").getValue(Double.class);
-                LatLng ll = new LatLng(lat, lon);
-                if(userMarkers.get(userID) == null) {
-                    Marker m = map.addMarker(new MarkerOptions().position(ll).title(userID).snippet(""));
-                    userMarkers.put(userID, m);
+                if(snapshot.child("event").getValue()  != null) {
+                    double lat = snapshot.child("latitude").getValue(Double.class);
+                    double lon = snapshot.child("longitude").getValue(Double.class);
+                    LatLng ll = new LatLng(lat, lon);
+                    if (userMarkers.get(userID) == null) {
+                        Marker m = map.addMarker(new MarkerOptions().position(ll).title(userID).snippet(""));
+                        userMarkers.put(userID, m);
+                    }
+                    userMarkers.get(userID).setPosition(new LatLng(lat, lon));
                 }
-                userMarkers.get(userID).setPosition(new LatLng(lat, lon));
             }
 
             @Override
@@ -299,10 +306,15 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
 
     }
 
+    public void onStop(){
+        super.onStop();
+        if(locationRequest != null)LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        myFirebaseRef.child("users").child(ParseUser.getCurrentUser().getObjectId()).removeValue();
+    }
+
     public void onDestroy(){
         super.onDestroy();
-        myFirebaseRef.child("users").child(ParseUser.getCurrentUser().getObjectId())
-                .removeValue();
+
         if(mGoogleApiClient != null)mGoogleApiClient.disconnect();
     }
 
@@ -317,11 +329,11 @@ public class EventsActivity extends ActionBarActivity implements ActionBar.TabLi
     }
 
     protected void startLocationUpdates() {
-        LocationRequest r = LocationRequest.create();
-        r.setInterval(10000);
-        r.setFastestInterval(1000);
-        r.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, r, this);
+        locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
     }
 
     protected synchronized void buildGoogleApiClient() {

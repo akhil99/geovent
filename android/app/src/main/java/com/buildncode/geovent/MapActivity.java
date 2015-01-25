@@ -52,6 +52,7 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     Firebase myFirebaseRef;
 
     LatLng tapCoords;
+    LatLng lastPos;
     ArrayList<LatLng>myPoints;
     ArrayList<GeoFence> geofences;
     Polygon polygon;
@@ -168,9 +169,12 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     }
 
     private void setEvent(String id){
-        myFirebaseRef.child("users").child(ParseUser.getCurrentUser().getObjectId())
-            .child("event").setValue(id);
-        myFirebaseRef.child("fences").child(id).child("users").child(ParseUser.getCurrentUser().getObjectId()).setValue(true);
+        Firebase ref = myFirebaseRef.child("users").child(ParseUser.getCurrentUser().getObjectId());
+        Map<String, Object> m = new HashMap<String, Object>();
+        m.put("event", id);
+        m.put("latitude", lastPos.latitude);
+        m.put("longitude", lastPos.longitude);
+        ref.setValue(m);
         Intent map = new Intent(this, EventsActivity.class);
         map.putExtra("eventId", id);
         startActivity(map);
@@ -265,10 +269,7 @@ public class MapActivity extends ActionBarActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location) {
         Log.d("haxor", "location changed");
         LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
-
-        JSONObject data = new JSONObject();
-        myFirebaseRef.child("users").child(user.getObjectId()).child("latitude").setValue(location.getLatitude());
-        myFirebaseRef.child("users").child(user.getObjectId()).child("longitude").setValue(location.getLongitude());
+        lastPos = latlng;
         if(map != null && !mapMoved){
             map.moveCamera(CameraUpdateFactory.newLatLng(latlng));
             mapMoved = true;
